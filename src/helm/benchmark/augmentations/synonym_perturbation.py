@@ -65,9 +65,11 @@ class SynonymPerturbation(Perturbation):
             wordnet.ensure_loaded()
         except LookupError:
             if not os.path.exists(os.path.join(output_dir, "corpora/wordnet")):
-                nltk.download("wordnet", download_dir=output_dir)
+                # nltk.download("wordnet", download_dir=output_dir)
+                pass
             if not os.path.exists(os.path.join(output_dir, "corpora/omw-1.4")):
-                nltk.download("omw-1.4", download_dir=output_dir)
+                # nltk.download("omw-1.4", download_dir=output_dir)
+                pass
         wordnet.ensure_loaded()
 
         target_path = os.path.join(output_dir, self.FILE_NAME)

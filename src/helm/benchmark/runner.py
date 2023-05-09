@@ -142,75 +142,75 @@ class Runner:
             # Create the instances of the scenario
             with htrack_block("scenario.get_instances"):
                 instances = scenario.get_instances()
-
-            # Give each instance a unique ID
-            instances = with_instance_ids(instances)
-
-            # Get the instances necessary for this run.
-            instances = adapter.get_run_instances(instances)
-
-            # Data preprocessing
-            instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
-                instances, self.executor.execution_spec.parallelism
-            )
+                # pass
+            # # Give each instance a unique ID
+            # instances = with_instance_ids(instances)
+            #
+            # # Get the instances necessary for this run.
+            # instances = adapter.get_run_instances(instances)
+            #
+            # # Data preprocessing
+            # instances = DataPreprocessor(run_spec.data_augmenter_spec).preprocess(
+            #     instances, self.executor.execution_spec.parallelism
+            # )
         else:
             instances = []
 
-        # Adapt (convert to requests)
-        scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
-
-        # Execute (fill up results)
-        scenario_state = self.executor.execute(scenario_state)
-
-        # Apply the metrics
-        # When performing a dry run, only estimate the number of tokens instead
-        # of calculating the metrics.
-        metrics: List[Metric] = (
-            [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
-        )
-        stats: List[Stat] = []
-        per_instance_stats: List[PerInstanceStats] = []
-        with htrack_block(f"{len(metrics)} metrics"):
-            for metric in metrics:
-                with htrack_block(metric):
-                    metric_result: MetricResult = metric.evaluate(
-                        scenario_state,
-                        self.metric_service,
-                        self.eval_cache_path,
-                        self.executor.execution_spec.parallelism,
-                    )
-                    stats.extend(metric_result.aggregated_stats)
-                    per_instance_stats.extend(metric_result.per_instance_stats)
+        # # Adapt (convert to requests)
+        # scenario_state: ScenarioState = adapter.adapt(instances, self.executor.execution_spec.parallelism)
+        #
+        # # Execute (fill up results)
+        # scenario_state = self.executor.execute(scenario_state)
+        #
+        # # Apply the metrics
+        # # When performing a dry run, only estimate the number of tokens instead
+        # # of calculating the metrics.
+        # metrics: List[Metric] = (
+        #     [DryRunMetric()] if self.dry_run else [create_metric(metric_spec) for metric_spec in run_spec.metric_specs]
+        # )
+        # stats: List[Stat] = []
+        # per_instance_stats: List[PerInstanceStats] = []
+        # with htrack_block(f"{len(metrics)} metrics"):
+        #     for metric in metrics:
+        #         with htrack_block(metric):
+        #             metric_result: MetricResult = metric.evaluate(
+        #                 scenario_state,
+        #                 self.metric_service,
+        #                 self.eval_cache_path,
+        #                 self.executor.execution_spec.parallelism,
+        #             )
+        #             stats.extend(metric_result.aggregated_stats)
+        #             per_instance_stats.extend(metric_result.per_instance_stats)
 
         # Check that there aren't duplicate `Stat`s
         # Note: doesn't catch near misses.
-        metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
-        for metric_name, count in metric_counts.items():
-            if count > 1:
-                hlog(f"WARNING: duplicate metric name {metric_name}")
-
-        # Print out the number of stats
-        hlog(f"Generated {len(stats)} stats.")
-
-        if self.skip_instances:
-            hlog("skip_instances was True. Skipping writing results out.")
-            return
-
-        # Output benchmarking information and results to files
-        write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
-
-        # Write out scenario
-        write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
-
-        # Write scenario state
-        write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
-
-        write(
-            os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
-        )
-        write(
-            os.path.join(run_path, "per_instance_stats.json"),
-            json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
-        )
-
-        cache_stats.print_status()
+        # metric_counts: typing.Counter[MetricName] = Counter([stat.name for stat in stats])
+        # for metric_name, count in metric_counts.items():
+        #     if count > 1:
+        #         hlog(f"WARNING: duplicate metric name {metric_name}")
+        #
+        # # Print out the number of stats
+        # hlog(f"Generated {len(stats)} stats.")
+        #
+        # if self.skip_instances:
+        #     hlog("skip_instances was True. Skipping writing results out.")
+        #     return
+        #
+        # # Output benchmarking information and results to files
+        # write(os.path.join(run_path, "run_spec.json"), json.dumps(asdict_without_nones(run_spec), indent=2))
+        #
+        # # Write out scenario
+        # write(os.path.join(run_path, "scenario.json"), json.dumps(asdict_without_nones(scenario), indent=2))
+        #
+        # # Write scenario state
+        # write(os.path.join(run_path, "scenario_state.json"), json.dumps(asdict_without_nones(scenario_state), indent=2))
+        #
+        # write(
+        #     os.path.join(run_path, "stats.json"), json.dumps([asdict_without_nones(stat) for stat in stats], indent=2)
+        # )
+        # write(
+        #     os.path.join(run_path, "per_instance_stats.json"),
+        #     json.dumps(list(map(asdict_without_nones, per_instance_stats)), indent=2),
+        # )
+        #
+        # cache_stats.print_status()

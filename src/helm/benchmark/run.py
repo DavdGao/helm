@@ -109,10 +109,10 @@ def symlink_latest(output_path: str, suite: str) -> None:
     suite_dir: str = os.path.join(runs_dir, suite)
     symlink_path: str = os.path.abspath(os.path.join(runs_dir, LATEST_SYMLINK))
     hlog(f"Symlinking {suite_dir} to {LATEST_SYMLINK}.")
-    if os.path.islink(symlink_path):
+    # if os.path.islink(symlink_path):
         # Remove the previous symlink if it exists.
-        os.unlink(symlink_path)
-    os.symlink(os.path.abspath(suite_dir), symlink_path)
+        # os.unlink(symlink_path)
+    # os.symlink(os.path.abspath(suite_dir), symlink_path)
 
 
 def add_run_args(parser: argparse.ArgumentParser):
@@ -244,13 +244,13 @@ def main():
     args = parser.parse_args()
     validate_args(args)
 
-    for huggingface_model_name in args.enable_huggingface_models:
-        register_huggingface_model_config(huggingface_model_name)
-    for huggingface_model_path in args.enable_local_huggingface_models:
-        register_huggingface_model_config(huggingface_model_path, local=True)
+    # for huggingface_model_name in args.enable_huggingface_models:
+    #     register_huggingface_model_config(huggingface_model_name)
+    # for huggingface_model_path in args.enable_local_huggingface_models:
+    #     register_huggingface_model_config(huggingface_model_path, local=True)
 
-    if not args.local:
-        check_and_register_remote_model(args.server_url, args.enable_remote_models)
+    # if not args.local:
+    #     check_and_register_remote_model(args.server_url, args.enable_remote_models)
 
     run_entries: List[RunEntry] = []
     if args.conf_paths:
@@ -276,7 +276,7 @@ def main():
 
     auth: Authentication = Authentication("") if args.skip_instances or args.local else create_authentication(args)
 
-    symlink_latest(output_path=args.output_path, suite=args.suite)
+    # symlink_latest(output_path=args.output_path, suite=args.suite)
 
     run_benchmarking(
         run_specs=run_specs,

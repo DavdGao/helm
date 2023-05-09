@@ -42,7 +42,8 @@ from .statistic import Stat
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
-    nltk.download("punkt")  # Required for rouge
+    # nltk.download("punkt")  # Required for rouge
+    pass
 
 
 EFFICIENCY_DATA_PACKAGE: str = "helm.benchmark.efficiency_data"
